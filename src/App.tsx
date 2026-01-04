@@ -8,7 +8,7 @@ import DashboardClient from './pages/DashboardClient'
 import PublicClinicPage from './pages/PublicClinicPage'
 
 export default function App() {
-  const [session, setSession] = useState(null)
+  const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
   const [userRole, setUserRole] = useState<string | null>(null)
 
