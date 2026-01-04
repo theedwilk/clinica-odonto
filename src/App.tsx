@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
-import { Session } from '@supabase/supabase-js'  // ← ADICIONE ESSA LINHA
+import { Session } from '@supabase/supabase-js'
 import LandingPage from '@/pages/LandingPage'
 import LoginPage from '@/pages/LoginPage'
 import DashboardClient from '@/pages/DashboardClient'
@@ -11,14 +11,10 @@ import PublicClinicPage from '@/pages/PublicClinicPage'
 function App() {
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
-  const [userRole, setUserRole] = useState<string | null>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
-      if (session) {
-        fetchUserRole(session.user.id)
-      }
       setLoading(false)
     })
 
@@ -26,47 +22,23 @@ function App() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
-      if (session) {
-        fetchUserRole(session.user.id)
-      } else {
-        setUserRole(null)
-      }
     })
 
-    return () => subscription?.unsubscribe()
+    return () => subscription.unsubscribe()
   }, [])
 
-  const fetchUserRole = async (userId: string) => {
-    const { data } = await supabase
-      .from('user_profiles')
-      .select('role')
-      .eq('id', userId)
-      .single()
-
-    setUserRole(data?.role || null)
-  }
-
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Carregando...</div>
+    return <div>Carregando...</div>
   }
 
   return (
     <Router>
       <Routes>
-        <Route path="/" element={!session ? <LandingPage /> : <Navigate to="/dashboard" />} />
-        <Route path="/login" element={!session ? <LoginPage /> : <Navigate to="/dashboard" />} />
-
-        {session && userRole === 'clinic_owner' && (
-          <Route path="/dashboard" element={<DashboardClinic />} />
-        )}
-
-        {session && userRole === 'client' && (
-          <Route path="/dashboard" element={<DashboardClient />} />
-        )}
-
-        <Route path="/clinic/:clinicId" element={<PublicClinicPage />} />
-
-        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={session ? <Navigate to="/dashboard" replace /> : <LoginPage />} />
+        <Route path="/dashboard" element={session ? <DashboardClient /> : <Navigate to="/login" replace />} />
+        <Route path="/clinic" element={session ? <DashboardClinic /> : <Navigate to="/login" replace />} />
+        <Route path="/clinic/:id" element={<PublicClinicPage />} />
       </Routes>
     </Router>
   )
