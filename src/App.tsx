@@ -1,13 +1,14 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { supabase } from './lib/supabase'
-import LandingPage from './pages/LandingPage'
-import LoginPage from './pages/LoginPage'
-import DashboardClinic from './pages/DashboardClinic'
-import DashboardClient from './pages/DashboardClient'
-import PublicClinicPage from './pages/PublicClinicPage'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { supabase } from '@/lib/supabase'
+import { Session } from '@supabase/supabase-js'  // ← ADICIONE ESSA LINHA
+import LandingPage from '@/pages/LandingPage'
+import LoginPage from '@/pages/LoginPage'
+import DashboardClient from '@/pages/DashboardClient'
+import DashboardClinic from '@/pages/DashboardClinic'
+import PublicClinicPage from '@/pages/PublicClinicPage'
 
-export default function App() {
+function App() {
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
   const [userRole, setUserRole] = useState<string | null>(null)
